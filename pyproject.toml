@@ -27,7 +27,8 @@ dependencies = [
     "pandas",
     "torch",
     "fastapi",
-    "uvicorn"
+    "uvicorn",
+    "scikit-learn"
 ] #argparse is a standard library
 
 [project.urls]
