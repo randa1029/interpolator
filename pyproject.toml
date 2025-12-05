@@ -28,7 +28,8 @@ dependencies = [
     "torch",
     "fastapi",
     "uvicorn",
-    "scikit-learn"
+    "scikit-learn",
+    "python-multipart"
 ] #argparse is a standard library
 
 [project.urls]
@@ -38,9 +39,10 @@ dependencies = [
 
 
 [tool.setuptools_scm]
-write_to = "backend/fivedreg/version.py"  # Where to write the dynamic version
-local_scheme = "no-local-version"
+write_to = "backend/fivedreg/version.py"
 version_scheme = "post-release"
+local_scheme = "no-local-version"
+tag_regex = "^(?P<version>\\d+\\.\\d+[a-zA-Z0-9]*?)$"
 
 [tool.setuptools.packages.find]
 where = ["backend"]
@@ -49,5 +51,5 @@ where = ["backend"]
 "fivedreg" = ["data/*"]
 
 
-[project.scripts]
-interpolator = "fivedreg.cli:main"
+#[project.scripts]
+#interpolator = "fivedreg.cli:main"
