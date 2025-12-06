@@ -57,14 +57,14 @@ class FiveDRegressor(nn.Module):
     train_loader = DataLoader(train_dataset, batch_size= batch_size, shuffle=True)
 
     optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
-    loss = nn.MSELoss()
+    cost = nn.MSELoss()
 
     self.train() #set model to training model
     for epoch in range(self.max_it):
       for X_batch, y_batch in train_loader:
         optimizer.zero_grad()
-        y_pred = self.model(X)
-        loss = loss(y_pred, y)
+        y_pred = self.model(X_batch)
+        loss = cost(y_pred, y_batch)
         loss.backward()
         optimizer.step()
 

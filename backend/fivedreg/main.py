@@ -40,8 +40,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @app.post("/upload")
 async def upload(
     file: UploadFile = File(...),
-    username: str = Form(None),
-    description: str = Form(None)
+    #username: str = Form(None),
+    #description: str = Form(None) - not including these fields as they have caused 422 validation erorr when tesing
 ):
     """
     Endpoint to upload a .pkl file
@@ -68,8 +68,8 @@ async def upload(
     return {
         "message": "File uploaded successfully!",
         "filename": safe_filename,
-        "uploaded_by": username,
-        "description": description
+        #"uploaded_by": username,
+        #"description": description
     }
 
 #------------------------------------------------
