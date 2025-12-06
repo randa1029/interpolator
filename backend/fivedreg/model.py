@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
 
 class FiveDRegressor(nn.Module):
   def __init__(self, input_size: int, output_size: int, hidden_layers:list, activation=nn.ReLU, lr = 1e-3, max_it = 200):
