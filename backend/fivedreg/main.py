@@ -5,6 +5,7 @@ import shutil
 import os
 from .data import load_data, split_data
 from .model import FiveDRegressor
+import numpy as np
 
 app = FastAPI()
 
@@ -71,6 +72,52 @@ async def upload(
         #"uploaded_by": username,
         #"description": description
     }
+#------------------------------------------------
+# Preview Pickle File Endpoint
+#------------------------------------------------
+class PreviewRequest(BaseModel):
+    filename: str
+
+@app.post("/preview")
+async def preview_dataset(request: PreviewRequest):
+    """
+    Preview the first few rows of an uploaded .pkl dataset.
+    """
+    filename = request.filename
+    safe_filename = os.path.basename(filename)
+    file_path = os.path.join(UPLOAD_DIR, safe_filename)
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    try:
+        with open(file_path, "rb") as f:
+            data = pickle.load(f)
+
+        # Assume your pickle contains (X, y) or a dict
+        if isinstance(data, tuple) and len(data) >= 2:
+            X, y = data[0], data[1]
+        elif isinstance(data, dict):
+            # More general
+            X = data.get("X")
+            y = data.get("y")
+        else:
+            X = data
+            y = None
+
+        X = np.array(X)
+        head = X[:5].tolist()
+
+        return {
+            "shape": list(X.shape),
+            "head": head,
+            "y_preview": y[:5].tolist() if y is not None else None
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Preview failed: {str(e)}")
+
+
 
 #------------------------------------------------
 # Model Training Endpoint
@@ -213,3 +260,17 @@ async def predict(data: PredictionInput):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+
+#------------------------------------------------
+# To call backend from frontend
+#------------------------------------------------
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
