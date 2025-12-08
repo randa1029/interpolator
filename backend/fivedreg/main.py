@@ -34,8 +34,8 @@ async def get_health(): #keeping all endpoints asyncrhonous for consistency
 # File Upload Endpoint
 #------------------------------------------------
 
-# Create an uploads directory if it doesn't exist
-UPLOAD_DIR = "uploads"
+# Use the existing data directory for uploads
+UPLOAD_DIR = "backend/fivedreg/data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.post("/upload")

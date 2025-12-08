@@ -29,7 +29,8 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "scikit-learn",
-    "python-multipart"
+    "python-multipart",
+    "pytest"
 ] #argparse is a standard library
 
 [project.urls]

@@ -33,6 +33,8 @@ def load_data(filepath):
     y = np.array(data['y'], dtype=float).reshape(-1)
 
     # Validate dimensions
+    if X.shape[1] != 5:
+        raise ValueError(f"Expected 5 features in X, got {X.shape[1]} features instead.")
     if X.ndim != 2:
         raise ValueError(f"Expected X to be 2-dimensional, got {X.ndim}-dimensional array instead.")
     if y.ndim != 1:
