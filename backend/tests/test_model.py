@@ -1,9 +1,9 @@
-from backend.fivedreg.model import FiveDRegressor
-from backend.fivedreg.data import load_data
+from fivedreg.model import FiveDRegressor
+from fivedreg.data import load_data
 import pytest
 import tempfile
 import pickle
-imort numpy as np
+import numpy as np
 
 @pytest.fixture #create one fixture that can be reused for all tests
 def sample_pkldata():

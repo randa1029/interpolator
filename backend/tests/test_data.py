@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import pickle
 import os
-from backend.fivedreg.data import load_data, split_data
+from fivedreg.data import load_data, split_data
 
 
 @pytest.fixture #create one fixture that can be reused for all tests
@@ -48,8 +48,8 @@ def test_data_handling(sample_pkldata) -> None:
     assert not np.isnan(y).any(), "Output data should not contain NaN values after preprocessing"
     
     #2. check if all NaN values are replaces by column means
-    assert X[0,1] == np.nanmean(X[:,1]), "Missing value in X should be replaced by column mean"
-    assert y[1] == np.nanmean(y), "Missing value in y should be replaced by mean of y"
+    assert X[0,1] == np.mean(X[1:,1]), "Missing value in X should be replaced by column mean"
+    assert y[1] == np.mean(y[[i for i in range(len(y)) if i != 1]]), "Missing value in y should be replaced by mean of y"
 
 def test_data_splitting(sample_pkldata) -> None:
     """ Testing data splitting and standardisation"""
@@ -64,10 +64,12 @@ def test_data_splitting(sample_pkldata) -> None:
     assert len(X_val) == len(X) * 0.1, "Validation set should be 10% of total data"
     assert len(X_train) + len(X_test) + len(X_val) == total_samples, "Total samples after split should match original data"
 
-    # Check standardisation (mean ~0, std ~1)
+    # Check standardisation (mean ~0, std ~1 for training data)
+    # Note: Test and validation sets are transformed using training statistics,
+    # so they won't necessarily have mean=0 and std=1 - which avoids data leakage.
     np.testing.assert_allclose(np.mean(X_train), 0, atol=1e-1, err_msg="Training data should be standardised to mean ~0")
     np.testing.assert_allclose(np.std(X_train), 1, atol=1e-1, err_msg="Training data should be standardised to std ~1")
-    np.testing.assert_allclose(np.mean(X_test), 0, atol=1e-1, err_msg="Testing data should be standardised to mean ~0")
-    np.testing.assert_allclose(np.std(X_test), 1, atol=1e-1, err_msg="Testing data should be standardised to std ~1")
-    np.testing.assert_allclose(np.mean(X_val), 0, atol=1e-1, err_msg="Validation data should be standardised to mean ~0")
-    np.testing.assert_allclose(np.std(X_val), 1, atol=1e-1, err_msg="Validation data should be standardised to std ~1") 
+    
+    # For test and validation sets, just verify they are finite and transformed
+    assert np.all(np.isfinite(X_test)), "Test data should contain only finite values after standardisation"
+    assert np.all(np.isfinite(X_val)), "Validation data should contain only finite values after standardisation" 

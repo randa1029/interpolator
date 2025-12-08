@@ -4,7 +4,7 @@ import pickle
 import tempfile
 import os
 from unittest.mock import patch
-from backend.fivedreg.main import app
+from fivedreg.main import app
 from fastapi.testclient import TestClient
 
 
