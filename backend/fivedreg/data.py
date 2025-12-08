@@ -66,6 +66,9 @@ def split_data(X, y, test_size=0.2, val_size=0.1, random_state=42):
     
     test_size : float
         Proportion of the dataset to include in the test split.
+
+    val_size : float
+        Proportion of the dataset to include in the validation split.
     
     random_state : int
         Random seed for reproducibility.
@@ -83,16 +86,19 @@ def split_data(X, y, test_size=0.2, val_size=0.1, random_state=42):
     """
     ####################Split data
     #test train split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+    X_remaining, X_test, y_remaining, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
     
     #validation train split
     relative_val_size = val_size / (1 - test_size)
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=relative_val_size, random_state=random_state)
-
+    X_train, X_val, y_train, y_val = train_test_split(X_remaining, y_remaining, test_size=relative_val_size, random_state=random_state)
     ####################Standardise features
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test) #only use transfrom here as we are applying the SAME standardisation as X_train
-    X_val = scaler.transform(X_val)
-
+    X_scaler = StandardScaler()
+    X_train = X_scaler.fit_transform(X_train)
+    X_test = X_scaler.transform(X_test) #only use transfrom here as we are applying the SAME standardisation as X_train
+    X_val = X_scaler.transform(X_val)
+    
+    y_scaler = StandardScaler()
+    y_train = y_scaler.fit_transform(y_train.reshape(-1, 1)).flatten()
+    y_test = y_scaler.transform(y_test.reshape(-1, 1)).flatten()
+    y_val = y_scaler.transform(y_val.reshape(-1, 1)).flatten()
     return X_train, X_test, X_val, y_train, y_test, y_val
