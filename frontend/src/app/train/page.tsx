@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function TrainPage() {
+function TrainPageContent() {
   const searchParams = useSearchParams();
   const [filename, setFilename] = useState("");
   const [numLayers, setNumLayers] = useState(3);
@@ -229,5 +229,13 @@ export default function TrainPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function TrainPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <TrainPageContent />
+    </Suspense>
   );
 }

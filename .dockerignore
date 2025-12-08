@@ -1,0 +1,61 @@
+############################################################
+# 1. OS / Editor junk
+############################################################
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+############################################################
+# 2. Git + IDE
+############################################################
+.git
+.vscode
+.idea
+
+############################################################
+# 3. Python backend (exclude all Python build/runtime junk)
+############################################################
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+cwenv_c1/
+venv/
+.env/
+
+# Python build artefacts
+*.egg-info
+.pytest_cache
+.coverage
+htmlcov/
+
+# Backend data (large files)
+backend/fivedreg/data/*.pkl
+data/*.pkl
+uploads/
+
+############################################################
+# 4. Node / Next.js
+############################################################
+# Node modules everywhere
+**/node_modules/
+
+# Next.js build output (prevent copying unneeded files)
+**/.next/
+**/out/
+**/dist/
+**/build/
+
+# Logs
+*.log
+
+############################################################
+# 5. Docker
+############################################################
+Dockerfile*
+docker-compose*
+
