@@ -17,7 +17,7 @@ trained_model = None
 #------------------------------------------------
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the FiveDRegressor API"}
+    return {"message": "FiveDRegressor API is running"}
 
 #------------------------------------------------
 # Health Check Endpoint
@@ -27,7 +27,7 @@ async def get_health(): #keeping all endpoints asyncrhonous for consistency
     """
     Service health check endpoint.
     """
-    return {"status": "healthy"}
+    return {"status": "ok"}
 
 
 #------------------------------------------------
@@ -107,11 +107,22 @@ async def preview_dataset(request: PreviewRequest):
 
         X = np.array(X)
         head = X[:5].tolist()
+        
+        # Convert NaN to None for JSON compliance
+        def convert_nan(obj):
+            if isinstance(obj, list):
+                return [convert_nan(item) for item in obj]
+            elif isinstance(obj, float) and np.isnan(obj):
+                return None
+            return obj
+        
+        head = convert_nan(head)
+        y_preview = convert_nan(y[:5].tolist()) if y is not None else None
 
         return {
             "shape": list(X.shape),
             "head": head,
-            "y_preview": y[:5].tolist() if y is not None else None
+            "y_preview": y_preview
         }
 
     except Exception as e:
@@ -153,19 +164,19 @@ async def train_model(config: TrainingConfig):
             status_code=400,
             detail="The sum of 'test_size' and 'val_size' must be less than 1.0."
         )
+    # Sanitize the filename from the Pydantic model to prevent Path Traversal 
+    safe_filename = os.path.basename(config.filename)
+    # Construct file path
+    file_path = os.path.join(UPLOAD_DIR, safe_filename)
+    
+    # Check if file exists
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=404,
+            detail=f"File '{config.filename}' not found. Please upload it first."
+        )
+    
     try:
-        # Sanitize the filename from the Pydantic model to prevent Path Traversal 
-        safe_filename = os.path.basename(config.filename)
-        # Construct file path
-        file_path = os.path.join(UPLOAD_DIR, safe_filename)
-        
-        # Check if file exists
-        if not os.path.exists(file_path):
-            raise HTTPException(
-                status_code=404,
-                detail=f"File '{config.filename}' not found. Please upload it first."
-            )
-        
         # Load and preprocess data
         X, y = load_data(file_path)
         X_train, X_test, X_val, y_train, y_test, y_val = split_data(

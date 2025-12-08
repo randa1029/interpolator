@@ -50,6 +50,8 @@ def sample_pkldata():
     if os.path.exists(temp.name):
         os.unlink(temp.name)
 
+##################Tests####################
+
 #Testing root
 def test_root():
     """ Testing root endpoint """
@@ -69,7 +71,7 @@ def test_health():
 def test_upload_success(sample_pkldata, temp_upload_dir):
     """ Testing successful file upload endpoint """
     
-    with patch('backend.fivedreg.main.UPLOAD_DIR', temp_upload_dir):
+    with patch('fivedreg.main.UPLOAD_DIR', temp_upload_dir):
         with open(sample_pkldata, 'rb') as f:
             response = client.post("/upload", files={"file": f})
         
@@ -99,7 +101,7 @@ def test_upload_failure():
 def test_preview_endpoint(sample_pkldata, temp_upload_dir):
     """ Testing preview pickle file endpoint """
     
-    with patch('backend.fivedreg.main.UPLOAD_DIR', temp_upload_dir):
+    with patch('fivedreg.main.UPLOAD_DIR', temp_upload_dir):
         # First upload the fixture file
         with open(sample_pkldata, 'rb') as f:
             upload_response = client.post("/upload", files={"file": f})
@@ -129,7 +131,7 @@ def test_preview_endpoint(sample_pkldata, temp_upload_dir):
 def test_training_endpoint(sample_pkldata, temp_upload_dir):
     """ Testing model training endpoint """
     
-    with patch('backend.fivedreg.main.UPLOAD_DIR', temp_upload_dir):
+    with patch('fivedreg.main.UPLOAD_DIR', temp_upload_dir):
         # First upload the file
         with open(sample_pkldata, 'rb') as f:
             upload_response = client.post("/upload", files={"file": f})
@@ -184,7 +186,7 @@ def test_training_file_not_found():
 def test_prediction_endpoint(sample_pkldata, temp_upload_dir):
     """ Testing model prediction endpoint - full workflow """
     
-    with patch('backend.fivedreg.main.UPLOAD_DIR', temp_upload_dir):
+    with patch('fivedreg.main.UPLOAD_DIR', temp_upload_dir):
         # Step 1: Upload the file
         with open(sample_pkldata, 'rb') as f:
             upload_response = client.post("/upload", files={"file": f})
@@ -229,7 +231,7 @@ def test_prediction_no_model():
     """ Testing prediction endpoint without training first """
     
     # Reset trained_model to None (simulate fresh start)
-    from backend.fivedreg import main
+    from fivedreg import main
     main.trained_model = None
     
     predict_payload = {

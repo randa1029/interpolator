@@ -30,7 +30,10 @@ dependencies = [
     "uvicorn",
     "scikit-learn",
     "python-multipart",
-    "pytest"
+    "pytest",
+    "pytest-cov",
+    "httpx",
+    "build"
 ] #argparse is a standard library
 
 [project.urls]
