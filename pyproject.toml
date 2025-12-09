@@ -34,7 +34,8 @@ dependencies = [
     "pytest-cov",
     "httpx",
     "build",
-    "sphinx"
+    "sphinx",
+    "matplotlib"
 ] #argparse is a standard library
 
 [project.urls]

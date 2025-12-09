@@ -1,0 +1,35 @@
+#readthedocs.yml
+
+#Read the Docs configuration file
+#See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+#Required
+version: 2 #referes to the version of the configuration file format
+
+#see the OS, Python version adn otehr tools needed
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.12"
+    #optional specification
+    #nodejs: "20"
+    #rust:"1.70"
+    #galang:"1.20"
+
+  #build documentation in the docs/ directory with Sphinx
+  sphinx:
+    configuration: docs/conf.py
+    #can also have otehr builder for sphinx, e.g. dirhtml for simpler URLs
+    #builder: html
+    #Fail on all warning to avoid broken references
+    #fail_on_warning: true
+
+  #Optional build your docs in addtional formats such as PDF or ePub
+  #formats:
+    #- pdf
+    #- epub
+
+  #optional but recommended, decalre the requirements file for installing dependencies
+  python:
+    install:
+      - requirements: docs/requirements.txt
