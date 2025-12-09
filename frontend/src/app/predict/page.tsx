@@ -35,7 +35,7 @@ export default function PredictPage() {
     const numericRows = rows.map(row => row.map(val => Number(val) || 0));
     const payload = { inputs: numericRows };
 
-    const res = await fetch("http://localhost:8000/predict", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

@@ -18,16 +18,18 @@ WORKDIR /app
 # Copy pyproject.toml for better caching
 COPY pyproject.toml .
 COPY backend/ ./backend/
-COPY .git/ ./.git/
+#COPY .git/ ./.git/
 
 # Development stage
 FROM base AS development
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.0b0.post12
 RUN pip install --no-cache-dir -e .
 COPY . .
 CMD ["uvicorn", "fivedreg.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 # Production stage
 FROM base AS production
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.0b0.post12
 RUN pip install --no-cache-dir -e .
 
 # Create non-root user

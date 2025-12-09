@@ -64,7 +64,7 @@ function TrainPageContent() {
         val_size: 0.1,
       };
 
-      const res = await fetch("http://localhost:8000/train", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/train`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

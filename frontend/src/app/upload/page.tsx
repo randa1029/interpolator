@@ -44,7 +44,7 @@ export default function UploadPage() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const res = await fetch("http://localhost:8000/upload", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -59,7 +59,7 @@ export default function UploadPage() {
       setMessage("✅ Upload successful");
       setUploaded(true);
     } catch (error: any) {
-      setMessage("❌ Error: " + (error.message || "Backend not responding. Is the server running on http://localhost:8000?"));
+      setMessage("❌ Error: " + (error.message || `Backend not responding. Is the server running on ${process.env.NEXT_PUBLIC_API_URL}?`));
       setUploaded(false);
     }
   }
@@ -67,7 +67,7 @@ export default function UploadPage() {
   async function handlePreview() {
     if (!file) return;
 
-    const res = await fetch("http://localhost:8000/preview", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/preview`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ filename: file.name }),
