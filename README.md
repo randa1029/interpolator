@@ -83,3 +83,8 @@ docker compose exec backend pytest -q
 ```bash
 pytest -s backend/tests/*
 ```
+
+## Documentation
+---
+Build documention with shell script: <br>
+`./scripts/doc.sh`

@@ -49,8 +49,8 @@ class FiveDRegressor(nn.Module):
     - eval_every (int): Frequency of evaluation during training, default is every 10 epochs
 
     """
-  
-    start_time = time.time()
+    if verbose:
+      start_time = time.time()
     
     # Convert to PyTorch tensors (optimized for CPU)
     X = torch.tensor(X, dtype=torch.float32)
@@ -88,8 +88,8 @@ class FiveDRegressor(nn.Module):
         elapsed = time.time() - start_time
         print(f"Epoch {epoch+1}/{self.max_it} - Loss: {avg_loss:.4f} - Time: {elapsed:.2f}s")
     
-    total_time = time.time() - start_time
     if verbose:
+      total_time = time.time() - start_time
       print(f"Training completed in {total_time:.2f} seconds")
       if total_time > 60:
         print(f" Warning: Training took {total_time:.2f}s (>60s target for <10k samples)")
