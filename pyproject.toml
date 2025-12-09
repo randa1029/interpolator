@@ -33,7 +33,8 @@ dependencies = [
     "pytest",
     "pytest-cov",
     "httpx",
-    "build"
+    "build",
+    "sphinx"
 ] #argparse is a standard library
 
 [project.urls]
