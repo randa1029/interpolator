@@ -7,7 +7,15 @@ from torch.autograd import profiler #this is a profiler API userful to identify 
 from torch.profiler import ProfilerActivity, record_function
 from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
-from backend.fivedreg.model import FiveDRegressor
+import sys
+from pathlib import Path
+
+# Add backend to path to allow imports
+backend_path = Path(__file__).parent / "backend"
+if str(backend_path) not in sys.path:
+    sys.path.insert(0, str(backend_path))
+
+from fivedreg.model import FiveDRegressor
 from torchmetrics.regression import MeanSquaredError, R2Score
 
 #import tqdm - do i need this and see progress bars??
@@ -175,7 +183,7 @@ def accuracy_metrics(Xtr,ytr,Xte,yte):
     model = FiveDRegressor(input_size = 5, output_size = 1, hidden_layers = [64,32,16], activation=nn.ReLU, lr = 1e-3, max_it = 200)
     
     model.fit(Xtr, ytr, verbose = 0)
-    
+
     yte = torch.tensor(yte, dtype = torch.float32).view(-1,1)
 
     ypred = model.predict(Xte)
