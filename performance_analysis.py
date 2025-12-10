@@ -47,7 +47,7 @@ def generate_samples(n_samples, n_features = 5, noise = 1, random_state = 42):
 ###############################
 #    Measure Training time    #
 ###############################
-def measure_training_time(X, y):
+def measure_training_time(X, y, model):
 
     """
     Function to measure training time of FiveDRegressor on given data
@@ -58,9 +58,15 @@ def measure_training_time(X, y):
         Input features (Train data)
     y: np.ndarray
         Target values (Train data)
-    """
+    
+    model: FiveDRegressor
+        Instance of FiveDRegressor model to be trained
 
-    model = FiveDRegressor(input_size = 5, output_size = 1, hidden_layers = [64,32,16], activation=nn.ReLU, lr = 1e-3, max_it = 200) #initialize model with default parameters,i.e. lr = 1e-3, max_it = 200
+    Returns:
+    --------
+    training_time: float
+        Time taken for training in seconds
+    """
 
 #----------1.Warm up runs
     for _ in range(10):
@@ -84,11 +90,11 @@ def measure_training_time(X, y):
         training_times.append(end_time - start_time)
     average_training_time = np.mean(training_times)
     final_training_time = average_training_time
-    print(f"Average training time over {num_iterations} iterations: {average_training_time:.4f} seconds")
+    #print(f"Average training time over {num_iterations} iterations: {average_training_time:.4f} seconds")
 
 #----------3. GPU Syncrhonization (if applicable) - which is NOT for my labtop  - CPU only
     
-    #return final_training_time
+    return final_training_time
 
 
 
@@ -96,7 +102,7 @@ def measure_training_time(X, y):
 #   Profiling Memory Usage    #
 ###############################
 
-def memory_usage(Xtr, ytr, Xte):
+def memory_usage(Xtr, ytr, Xte, model):
 
     """
     Function to profile memory usage during both training and prediction phases to identify potential bottlenecks.
@@ -112,9 +118,20 @@ def memory_usage(Xtr, ytr, Xte):
     Xte: np.ndarray
         Input features (Test data)
 
+    model: FiveDRegressor
+        Instance of FiveDRegressor model to be profiled
+
+    Returns:
+    --------
+    prof_train: torch.profiler.profile
+        Profiling object for training phase
+    
+    prof_pred: torch.profiler.profile
+        Profiling object for prediction phase
+
     """
 
-    model = FiveDRegressor(input_size = 5, output_size = 1, hidden_layers = [64,32,16], activation=nn.ReLU, lr = 1e-3, max_it = 5) #reduce number of epochs for profiling
+    #model = FiveDRegressor(input_size = 5, output_size = 1, hidden_layers = [64,32,16], activation=nn.ReLU, lr = 1e-3, max_it = 5) #reduce number of epochs for profiling
 #-----------------profiling during training
     #set up profile
     with torch.profiler.profile(
@@ -124,31 +141,32 @@ def memory_usage(Xtr, ytr, Xte):
 
         with record_function("model_training"): #record function allows memory using for training to be isolated, making it easier to analyse
             output = model.fit(Xtr, ytr, verbose = 0) #Forward pass
-        
-    print("Memory usage during training:")
-    print(prof_train.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
+
+    #do in notebook:   
+    #print("Memory usage during training:")
+    #print(prof_train.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
     
 #-----------------profiling during prediction
     with torch.profiler.profile(
         activities = [ProfilerActivity.CPU],
         record_shapes = True,
         profile_memory = True) as prof_pred:
-
         with record_function("model_prediction"): #record function allows memory using for training to be isolated, making it easier to analyse
             output = model.predict(Xte) #Forward pass
-        
-    print("Memory usage during prediction:")
-    print(prof_pred.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
+    
+    #do in notebook
+    #print("Memory usage during prediction:")
+    #print(prof_pred.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
     
 
-    #return prof_train, prof_pred
+    return prof_train, prof_pred
 
 
 
 ###############################
 #       Accuracy Metrics      #
 ###############################
-def accuracy_metrics(Xtr,ytr,Xte,yte):
+def accuracy_metrics(Xtr,ytr,Xte,yte, model):
     """
     Function to compute accuracy metrics - MSE and R^2 score on test data
     
@@ -165,6 +183,17 @@ def accuracy_metrics(Xtr,ytr,Xte,yte):
 
     yte: np.ndarray
         True target values on test data
+    
+    model: FiveDRegressor
+        Instance of FiveDRegressor model to be evaluated
+    
+    returns:
+    --------
+    mse_value: float
+        Mean Squared Error on test data
+    
+    r2_value: float
+        R^2 Score on test data
 
     """
 
@@ -183,8 +212,9 @@ def accuracy_metrics(Xtr,ytr,Xte,yte):
     r2 = R2Score()
     r2_value = r2(ypred,yte)
 
-    print(f"Mean Squared Error on test data: {mse_value.item():.4f}")
-    print(f"R^2 Score on test data: {r2_value.item():.4f}")
-    #return mse_value.item(), r2_value.item()
+    #do in notebook:
+    #print(f"Mean Squared Error on test data: {mse_value.item():.4f}")
+    #print(f"R^2 Score on test data: {r2_value.item():.4f}")
+    return mse_value.item(), r2_value.item()
 
     
