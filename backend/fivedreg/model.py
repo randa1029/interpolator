@@ -7,15 +7,23 @@ import time
 class FiveDRegressor(nn.Module):
   def __init__(self, input_size: int, output_size: int, hidden_layers:list, activation=nn.ReLU, lr = 1e-3, max_it = 200):
     """
-    This function is to implement a configurable lightweight neural network
+    Initialize a configurable lightweight neural network.
 
-    Parameters:
-    - input_size (int) : The number of input features (i.e. 5 for the 5D dataset), 
-    - output_size (int): The number of output features, 
-    - hidden_layers(list): A list of integers, number of integers correspons to number of layers, and each number shows the number of neurons per layer, 
-    - activation: The activation function to use, default is ReLU
-    - lr(float): The learning rate, default is 1e-3
-    - max_it(int): The maximum number of iterations/epochs, default is 200
+    Parameters
+    ----------
+    input_size : int
+        The number of input features (i.e. 5 for the 5D dataset).
+    output_size : int
+        The number of output features.
+    hidden_layers : list
+        A list of integers, number of integers corresponds to number of layers,
+        and each number shows the number of neurons per layer.
+    activation : torch.nn.Module, optional
+        The activation function to use, default is ReLU.
+    lr : float, optional
+        The learning rate, default is 1e-3.
+    max_it : int, optional
+        The maximum number of iterations/epochs, default is 200.
     """
     super().__init__()
     self.lr = lr
@@ -38,16 +46,21 @@ class FiveDRegressor(nn.Module):
 
   def fit(self, X, y, batch_size=64, verbose=1, eval_every=10):
     """
-    This function is to fit the model to the data
-    Optimized for CPU training on datasets up to 10,000 samples within 1 minute
+    Fit the model to the data.
+    Optimized for CPU training on datasets up to 10,000 samples within 1 minute.
 
-    Parameters:
-    - X (array-like): The input data (i.e. X_train)
-    - y (array-like): The target data (i.e. y_train)
-    - batch_size (int): The batch size for mini-batch gradient descent, default is 64
-    - verbose (int): Verbosity level, 0=no output, 1=progress every eval_every epochs
-    - eval_every (int): Frequency of evaluation during training, default is every 10 epochs
-
+    Parameters
+    ----------
+    X : array-like
+        The input data (i.e. X_train).
+    y : array-like
+        The target data (i.e. y_train).
+    batch_size : int, optional
+        The batch size for mini-batch gradient descent, default is 64.
+    verbose : int, optional
+        Verbosity level, 0=no output, 1=progress every eval_every epochs.
+    eval_every : int, optional
+        Frequency of evaluation during training, default is every 10 epochs.
     """
   
     start_time = time.time()
@@ -102,13 +115,17 @@ class FiveDRegressor(nn.Module):
 
   def predict(self,X):
    """
-   This function is to predict output of the model
+   Predict output of the model.
 
-   Parameters:
-   - X (array-like): The input data (i.e. X_test)
+   Parameters
+   ----------
+   X : array-like
+       The input data (i.e. X_test).
 
-   Returns:
-   - y_pred (array-like): The predicted output
+   Returns
+   -------
+   y_pred : array-like
+       The predicted output.
    """
 
    self.eval() #set model to evaluation mode

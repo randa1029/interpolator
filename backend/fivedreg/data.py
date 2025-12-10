@@ -12,16 +12,15 @@ def load_data(filepath):
     """
     Load dataset from a pickle file, then validate input dimensions and handle missing values.
 
-    Inputs:
+    Parameters
     ----------
     filepath : str
         Path to the pickle file containing the dataset.
 
-    Returns:
-    ----------
+    Returns
+    -------
     X : np.ndarray
         Feature matrix.
-    
     y : np.ndarray
         Target vector.
     """
@@ -56,25 +55,21 @@ def split_data(X, y, test_size=0.2, val_size=0.1, random_state=42):
     Split the dataset into training and testing sets, then standardise the features.
     Here I chose to have 70% train, 20% test, and 10% validation splits.
 
-    Inputs:
+    Parameters
     ----------
     X : np.ndarray
         Feature matrix.
-    
     y : np.ndarray
         Target vector.
-    
     test_size : float
         Proportion of the dataset to include in the test split.
-
     val_size : float
         Proportion of the dataset to include in the validation split.
-    
     random_state : int
         Random seed for reproducibility.
 
-    Returns:
-    ----------
+    Returns
+    -------
     X_train : np.ndarray
         Standardised training feature matrix.
     X_test : np.ndarray

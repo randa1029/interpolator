@@ -3,15 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Interpolator Package Documentation documentation
+Interpolator Package Documentation 
 ================================================
-
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   1.API Reference <api_reference>
+   2.User Guides <user_guides>
+   3.Installation Instructions <installation>
+   4.Usage Examples <usage_examples>
+   5.Test Suite <test_suite>
+   6.Performance and Analysis <performance_analysis>
+
+  
 
