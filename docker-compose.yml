@@ -1,11 +1,12 @@
 name: interpolator
+
 services:
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
       target: production
-    container_name: backend
+    #container_name: backend
     ports:
       - "8000:8000"
     environment:
@@ -26,7 +27,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       target: runner
-    container_name: frontend
+    #container_name: frontend
     ports:
       - "3000:3000"
     environment:
