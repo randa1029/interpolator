@@ -48,7 +48,8 @@ dependencies = [
 write_to = "backend/fivedreg/version.py"
 version_scheme = "post-release"
 local_scheme = "no-local-version"
-tag_regex = "^(?P<version>\\d+\\.\\d+[a-zA-Z0-9]*?)$"
+fallback_version = "0.0b0"
+tag_regex = "^v(?P<version>\\d+(?:\\.\\d+)*(?:[abrc]\\d+)?)$"
 
 [tool.setuptools.packages.find]
 where = ["backend"]

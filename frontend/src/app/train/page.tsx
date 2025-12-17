@@ -4,13 +4,17 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 function TrainPageContent() {
   const searchParams = useSearchParams();
+
   const [filename, setFilename] = useState("");
-  const [numLayers, setNumLayers] = useState(3);
-  const [neurons, setNeurons] = useState<(number | string)[]>([64, 32, 16]);
-  const [lr, setLr] = useState<number | string>(0.001);
-  const [maxIt, setMaxIt] = useState<number | string>(200);
+  const [numLayers, setNumLayers] = useState("3");
+  const [neurons, setNeurons] = useState<string[]>(["64", "32", "16"]);
+  const [lr, setLr] = useState("0.001");
+  const [maxIt, setMaxIt] = useState("200");
 
   const [result, setResult] = useState<any>(null);
   const [message, setMessage] = useState("");
@@ -23,21 +27,22 @@ function TrainPageContent() {
     }
   }, [searchParams]);
 
-  // When number of layers changes → adjust neurons array
+  // Update number of layers
   function updateLayerCount(value: string) {
-    const n = Number(value) || 1;
+    const n = Math.max(1, Number(value) || 1);
     const updated = [...neurons];
 
     if (n > updated.length) {
-      while (updated.length < n) updated.push(64);
+      while (updated.length < n) updated.push("64");
     } else {
       updated.length = n;
     }
+
+    setNumLayers(String(n));
     setNeurons(updated);
-    setNumLayers(n);
   }
 
-  // Update neurons for a given layer
+  // Update neurons per layer
   function updateNeuronCount(i: number, value: string) {
     const updated = [...neurons];
     updated[i] = value;
@@ -45,7 +50,7 @@ function TrainPageContent() {
   }
 
   async function startTraining() {
-    if (!filename || !filename.trim()) {
+    if (!filename.trim()) {
       setMessage("❌ No dataset file specified. Please upload a file first.");
       return;
     }
@@ -53,49 +58,49 @@ function TrainPageContent() {
     setMessage("Training model...");
     setResult(null);
 
-    try {
-      const payload = {
-        filename: filename.trim(),
-        hidden_layers: neurons.map(n => Number(n) || 0),
-        lr: Number(lr) || 0.001,
-        max_it: Number(maxIt) || 200,
-        batch_size: 64,
-        test_size: 0.2,
-        val_size: 0.1,
-      };
+    const payload = {
+      filename: filename.trim(),
+      hidden_layers: neurons.map((n) => Number(n) || 0),
+      lr: Number(lr) || 0.001,
+      max_it: Number(maxIt) || 200,
+      batch_size: 64,
+      test_size: 0.2,
+      val_size: 0.1,
+    };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/train`, {
+    try {
+      const res = await fetch(`${API_URL}/train`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      
       if (!res.ok) {
-        setMessage("❌ Training failed: " + (data.detail || res.statusText));
-        setResult(null);
+        const text = await res.text();
+        setMessage(`❌ Training failed (${res.status}): ${text.slice(0, 200)}`);
         return;
       }
 
+      const data = await res.json();
       setResult(data);
       setMessage("✅ Training completed successfully!");
     } catch (error: any) {
       setMessage("❌ Error: " + error.message);
-      setResult(null);
     }
   }
 
   return (
     <main className="p-10 flex flex-col gap-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-4">
-        <Link href="/upload" className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+        <Link
+          href="/upload"
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+        >
           ← Go Back
         </Link>
         <h1 className="text-3xl font-bold">Train Model</h1>
       </div>
 
-      {/* Filename (read-only, from upload) */}
       {filename && (
         <div className="border rounded p-4 bg-gray-50">
           <p className="font-semibold">Training Dataset:</p>
@@ -107,8 +112,8 @@ function TrainPageContent() {
       <div>
         <label className="font-semibold">Number of Layers</label>
         <input
-          type="number"
-          min={1}
+          type="text"
+          inputMode="numeric"
           className="border p-2 w-full mt-1"
           value={numLayers}
           onChange={(e) => updateLayerCount(e.target.value)}
@@ -122,8 +127,8 @@ function TrainPageContent() {
           {neurons.map((n, i) => (
             <input
               key={i}
-              type="number"
-              min={1}
+              type="text"
+              inputMode="numeric"
               className="border p-2"
               value={n}
               onChange={(e) => updateNeuronCount(i, e.target.value)}
@@ -137,8 +142,8 @@ function TrainPageContent() {
       <div>
         <label className="font-semibold">Learning Rate</label>
         <input
-          type="number"
-          step="0.0001"
+          type="text"
+          inputMode="decimal"
           className="border p-2 w-full mt-1"
           value={lr}
           onChange={(e) => setLr(e.target.value)}
@@ -149,7 +154,8 @@ function TrainPageContent() {
       <div>
         <label className="font-semibold">Max Iterations</label>
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
           className="border p-2 w-full mt-1"
           value={maxIt}
           onChange={(e) => setMaxIt(e.target.value)}
@@ -167,59 +173,48 @@ function TrainPageContent() {
 
       {result && (
         <div className="border rounded p-4 bg-white shadow">
-          <h2 className="text-xl font-semibold mb-4 text-green-600">✓ Training Completed Successfully!</h2>
-          
-          {/* Model Configuration */}
+          <h2 className="text-xl font-semibold mb-4 text-green-600">
+            ✓ Training Completed Successfully!
+          </h2>
+
           {result.config && (
             <div className="mb-4">
               <h3 className="font-semibold text-lg mb-2">Model Configuration</h3>
               <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded">
+                <div>Input Size: {result.config.input_size}</div>
                 <div>
-                  <span className="text-gray-600">Input Size:</span>
-                  <span className="ml-2 font-semibold">{result.config.input_size}</span>
+                  Hidden Layers: {result.config.hidden_layers.join(", ")}
                 </div>
-                <div>
-                  <span className="text-gray-600">Hidden Layers:</span>
-                  <span className="ml-2 font-semibold">{result.config.hidden_layers.join(", ")}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Learning Rate:</span>
-                  <span className="ml-2 font-semibold">{result.config.learning_rate}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Max Iterations:</span>
-                  <span className="ml-2 font-semibold">{result.config.max_iterations}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Batch Size:</span>
-                  <span className="ml-2 font-semibold">{result.config.batch_size}</span>
-                </div>
+                <div>Learning Rate: {result.config.learning_rate}</div>
+                <div>Max Iterations: {result.config.max_iterations}</div>
+                <div>Batch Size: {result.config.batch_size}</div>
               </div>
             </div>
           )}
-          
-          {/* Data Split */}
+
           {result.data_split && (
-            <div className="mb-4">
-              <h3 className="font-semibold text-lg mb-2">Data Split</h3>
-              <div className="flex gap-4 bg-blue-50 p-3 rounded">
-                <div className="flex-1 text-center">
-                  <p className="text-gray-600 text-sm">Training Samples</p>
-                  <p className="text-2xl font-bold text-blue-600">{result.data_split.train_samples}</p>
-                </div>
-                <div className="flex-1 text-center">
-                  <p className="text-gray-600 text-sm">Test Samples</p>
-                  <p className="text-2xl font-bold text-green-600">{result.data_split.test_samples}</p>
-                </div>
-                <div className="flex-1 text-center">
-                  <p className="text-gray-600 text-sm">Validation Samples</p>
-                  <p className="text-2xl font-bold text-purple-600">{result.data_split.val_samples}</p>
-                </div>
+            <div className="flex gap-4 bg-blue-50 p-3 rounded">
+              <div className="flex-1 text-center">
+                <p className="text-sm">Train</p>
+                <p className="text-xl font-bold">
+                  {result.data_split.train_samples}
+                </p>
+              </div>
+              <div className="flex-1 text-center">
+                <p className="text-sm">Test</p>
+                <p className="text-xl font-bold">
+                  {result.data_split.test_samples}
+                </p>
+              </div>
+              <div className="flex-1 text-center">
+                <p className="text-sm">Validation</p>
+                <p className="text-xl font-bold">
+                  {result.data_split.val_samples}
+                </p>
               </div>
             </div>
           )}
-          
-          {/* Go to Prediction page after successful training */}
+
           <Link
             href="/predict"
             className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -234,7 +229,13 @@ function TrainPageContent() {
 
 export default function TrainPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          Loading...
+        </div>
+      }
+    >
       <TrainPageContent />
     </Suspense>
   );

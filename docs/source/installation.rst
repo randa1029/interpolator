@@ -31,18 +31,6 @@ To install the Interpolator package, follow these steps:
 
       pip install -e .
 
-.. warning::
-    Because of the dynamic versioning tools used, and due to tags for each question, additional steps need to be taken before `pip install -e .` will function correctly.
-    1. Check tags by :
-    .. code-block:: bash
-         git tag
-    2. Delete tags that are not for versioning (e.g. 0.0.beta0), that is essentially all tags starting with 'Question_..". Do so by:
-    .. code-block:: bash
-         git tag -d <tag_name1> <tag_name2> ...
-    3. After that, run:
-    .. code-block:: bash
-         pip install -e .
-
 4. To run backend server locally (for development and testing)
     .. code-block:: bash
         uvicorn backend.fivedreg.main:app --reload

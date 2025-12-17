@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 export default function PredictPage() {
   const [rows, setRows] = useState<string[][]>([["", "", "", "", ""]]);
   const [result, setResult] = useState<any>(null);
@@ -31,25 +34,40 @@ export default function PredictPage() {
     setMessage("Predicting...");
     setResult(null);
 
-    // Convert strings to numbers
-    const numericRows = rows.map(row => row.map(val => Number(val) || 0));
+    const numericRows = rows.map((row) =>
+      row.map((val) => Number(val) || 0)
+    );
+
     const payload = { inputs: numericRows };
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(`${API_URL}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
-    setResult(data);
-    setMessage("");
+      if (!res.ok) {
+        const text = await res.text();
+        setMessage(`❌ Prediction failed (${res.status}): ${text.slice(0, 200)}`);
+        return;
+      }
+
+      const data = await res.json();
+      setResult(data);
+      setMessage("");
+    } catch (error: any) {
+      setMessage("❌ Error: " + error.message);
+    }
   }
 
   return (
     <main className="p-10 flex flex-col gap-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-4">
-        <Link href="/train" className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+        <Link
+          href="/train"
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+        >
           ← Go Back
         </Link>
         <h1 className="text-3xl font-bold">Make a Prediction</h1>
@@ -61,7 +79,8 @@ export default function PredictPage() {
           {row.map((value, colIndex) => (
             <input
               key={colIndex}
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="border p-2 w-24"
               placeholder={`x${colIndex + 1}`}
               value={value}
@@ -102,23 +121,30 @@ export default function PredictPage() {
       {result && (
         <div className="border rounded p-4 bg-white shadow">
           <h2 className="text-xl font-semibold mb-4">Prediction Results</h2>
-          
+
           <div className="space-y-3">
-            {result.predictions && result.predictions.map((pred: number, idx: number) => (
-              <div key={idx} className="flex items-center gap-3 p-3 bg-blue-50 rounded">
-                <span className="font-semibold text-gray-700">Sample {idx + 1}:</span>
-                <span className="text-2xl font-bold text-blue-600">{pred.toFixed(4)}</span>
+            {result.predictions?.map((pred: number, idx: number) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 p-3 bg-blue-50 rounded"
+              >
+                <span className="font-semibold text-gray-700">
+                  Sample {idx + 1}:
+                </span>
+                <span className="text-2xl font-bold text-blue-600">
+                  {pred.toFixed(4)}
+                </span>
               </div>
             ))}
           </div>
-          
+
           <p className="mt-4 text-gray-600">
-            Total predictions: <span className="font-semibold">{result.num_samples}</span>
+            Total predictions:{" "}
+            <span className="font-semibold">{result.num_samples}</span>
           </p>
         </div>
       )}
 
-      {/* Go to Home page - outside the results box */}
       {result && (
         <div className="flex justify-end">
           <Link

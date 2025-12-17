@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
@@ -44,14 +47,14 @@ export default function UploadPage() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+      const res = await fetch(`${API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        setMessage("❌ Upload failed: " + (data.detail || res.statusText));
+        const text = await res.text();
+        setMessage(`❌ Upload failed (${res.status}): ${text.slice(0, 200)}`);
         setUploaded(false);
         return;
       }
@@ -59,7 +62,11 @@ export default function UploadPage() {
       setMessage("✅ Upload successful");
       setUploaded(true);
     } catch (error: any) {
-      setMessage("❌ Error: " + (error.message || `Backend not responding. Is the server running on ${process.env.NEXT_PUBLIC_API_URL}?`));
+      setMessage(
+        "❌ Error: " +
+          (error.message ||
+            `Backend not responding. Is the server running on ${API_URL}?`)
+      );
       setUploaded(false);
     }
   }
@@ -67,11 +74,17 @@ export default function UploadPage() {
   async function handlePreview() {
     if (!file) return;
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/preview`, {
+    const res = await fetch(`${API_URL}/preview`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ filename: file.name }),
     });
+
+    if (!res.ok) {
+      const text = await res.text();
+      setMessage(`❌ Preview failed (${res.status}): ${text.slice(0, 200)}`);
+      return;
+    }
 
     const data = await res.json();
     setPreviewData(data);
@@ -84,7 +97,6 @@ export default function UploadPage() {
       {/* File Input */}
       <input
         type="file"
-        accept=".pkl"
         onChange={handleFileSelect}
         className="border p-3"
       />
@@ -93,22 +105,28 @@ export default function UploadPage() {
       {previewMeta && (
         <div className="border rounded p-4 bg-gray-50">
           <h2 className="font-semibold mb-2">File Information</h2>
-          <p><strong>Name:</strong> {previewMeta.name}</p>
-          <p><strong>Size:</strong> {previewMeta.size}</p>
-          <p><strong>Last Modified:</strong> {previewMeta.modified}</p>
+          <p>
+            <strong>Name:</strong> {previewMeta.name}
+          </p>
+          <p>
+            <strong>Size:</strong> {previewMeta.size}
+          </p>
+          <p>
+            <strong>Last Modified:</strong> {previewMeta.modified}
+          </p>
         </div>
       )}
 
       {/* Status message */}
       {message && (
-        <p className="p-3 bg-gray-100 border rounded font-semibold">{message}</p>
+        <p className="p-3 bg-gray-100 border rounded font-semibold">
+          {message}
+        </p>
       )}
 
       {/* Actions AFTER successful upload */}
       {uploaded && file && (
         <div className="flex flex-col gap-3 mt-2">
-
-          {/* 1. Preview pickle file button */}
           <button
             onClick={handlePreview}
             className="px-4 py-2 bg-purple-600 text-white rounded w-fit hover:bg-purple-700"
@@ -116,14 +134,12 @@ export default function UploadPage() {
             Preview Pickle File
           </button>
 
-          {/* 2. Go to training page */}
           <Link
             href={`/train?filename=${encodeURIComponent(file.name)}`}
             className="px-4 py-2 bg-green-600 text-white rounded w-fit hover:bg-green-700"
           >
             Go to Training →
           </Link>
-
         </div>
       )}
 
@@ -132,7 +148,9 @@ export default function UploadPage() {
         <div className="border rounded p-4 bg-white shadow">
           <h2 className="text-xl font-semibold">Dataset Preview</h2>
 
-          <p><strong>Shape:</strong> {previewData.shape?.join(" × ")}</p>
+          <p>
+            <strong>Shape:</strong> {previewData.shape?.join(" × ")}
+          </p>
 
           <h3 className="font-medium mt-3">First Rows:</h3>
           <pre className="bg-gray-100 p-3 rounded overflow-auto">
